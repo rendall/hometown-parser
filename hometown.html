@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="js/vendor/ramda/0.24.1/ramda.min.js"></script>
+    <style>
+        * {
+            font-family: sans-serif;
+            font-size: 1em;
+        }
+
+        input {
+            width: 20em;
+        }
+
+        textarea {
+            width: 20em;
+            height: 20em;
+        }
+
+        p {
+            visibility: hidden;
+        }
+
+        p.on {
+            visibility: visible;
+        }
+
+        label {
+            vertical-align: top;
+            display: block;
+        }
+
+        ol>li {
+            margin-bottom: 1em;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Place name parser</h1>
+    <div>
+        <label>What is your group's hometown?</label>
+        <input/>
+        <p id="list-notice">The algorithm interprets this as:</p>
+        <ul></ul>
+        <button id="test-button">Run tests</button>
+        <p id="test-notice">Tests complete. Check your browser console.</p>
+        <button id="example-button">Show examples</button>
+        <p id="example-notice">Examples follow:
+            <button id="canonize-button">Canonize town names</button>
+        </p>
+        <ol></ol>
+    </div>
+    <script src="js/hometowns.js"></script>
+    <script>
+        const input = document.querySelector("input");
+        const ul = document.querySelector("ul");
+        const ol = document.querySelector("ol");
+
+        const testButton = document.querySelector("button#test-button");
+        const exampleButton = document.querySelector("button#example-button");
+
+        const addToList = (str, list) => {
+            const li = document.createElement("li");
+            const liValue = document.createTextNode(str);
+            li.appendChild(liValue);
+            list.appendChild(li);
+            return li;
+        }
+        const clearList = (list) => list.querySelectorAll("li").forEach((li) => li.remove());
+        const onKeyPress = (e) => {
+            const towns = parseTowns(input.value);
+            console.debug(towns);
+            clearList(ul);
+            if (towns) towns.forEach((town) => addToList(town, ul));
+            const p = document.querySelector("p#list-notice");
+            towns.length > 0 ? p.classList.add("on") : p.classList.remove("on");
+        }
+        const onTestButtonClick = (e) => {
+            const pTest = document.querySelector("p#test-notice");
+            pTest.classList.remove("on");
+            testRun();
+            pTest.classList.add("on");
+        }
+
+        const onExampleButtonClick = (e) => {
+            const p = document.querySelector("p#example-notice");
+            p.classList.remove("on");
+
+            clearList(ol);
+
+            dummyData.forEach((str) => {
+                const li = addToList(`"${str}"`, ol);
+                const subList = document.createElement("ul");
+                li.appendChild(subList);
+
+                const towns = parseTowns(str);
+                towns.length == 0 ? addToList("?", subList) : towns.forEach((town) => addToList(town, subList));
+            });
+
+            p.classList.add("on");
+        }
+
+        const onCanonizeButtonClick = (e) => {
+            const p = document.querySelector("p#example-notice");
+            p.classList.remove("on");
+
+            clearList(ol);
+
+
+            dummyData.forEach((str) => {
+                const li = addToList(`"${str}"`, ol);
+                const subList = document.createElement("ul");
+                li.appendChild(subList);
+
+                const towns = parseTowns(str);
+                towns.length == 0 ? addToList("?", subList) : towns.forEach((town) => addToList(`${town} => "${toCanonicalName(town)}"`, subList));
+            });
+
+            p.classList.add("on");
+        }
+
+        input.addEventListener("keyup", onKeyPress);
+        testButton.addEventListener("click", onTestButtonClick);
+        exampleButton.addEventListener("click", onExampleButtonClick);
+
+        const canonizeButton = document.querySelector("button#canonize-button")
+        canonizeButton.addEventListener("click", onCanonizeButtonClick);
+    </script>
+
+    <script>
+        const doTest = (message, expr, expected) => {
+            //console.count("test #");
+            var equals = (expr instanceof Array) ? R.equals(expr.sort(), expected.sort()) : R.equals(expr, expected);
+            console.assert(equals, "\n" + message + "\nReceived:", expr);
+        };
+        //const doTest = (message, result, expected) => console.assert(expected == result, message, result);
+        var testRun = function () {
+            console.log("Beginning tests.");
+            doTest("This test should always fail.", false, true);
+            doTest('isPattern(/[^\.](.*?)\./, "Aa.") => true', isPattern(/[^\.](.*?)\./, "Aa."), true);
+            doTest('isPattern(/[^\.](.*?)\./, "Aa.Ba.Ca.") => false', isPattern(/[^\.](.*?)\./, "Aa.Ba.Ca."), false);
+            doTest('n/a should return empty', parseTowns("n/a"), []);
+            doTest('normTrimFront("123f") should return "f"', normTrimFront("123f"), "f");
+            doTest('normalizeInputStr("  ") should return empty', normalizeInputStr("  "), "");
+            doTest('normalizeInputStr(" f ") should return "f"', normalizeInputStr(" f "), "f");
+            doTest('normalizeInputStr("...f...") should return "f"', normalizeInputStr("...f..."), "f");
+            doTest('normalizeInputStr("facebook.com/vituttaa") should return empty', normalizeInputStr("facebook.com/vituttaa"), "");
+            doTest('removeWebsites("hey facebook.uk.co.com/my/pages/index.html") should return "hey "', removeWebsites("hey facebook.uk.co.com/my/pages/index.html"), "hey ");
+            doTest('splitExpr(/a/, "LaR") will return ["L", "R"]', splitExpr(/a/, "LaR"), ["L", "R", "a"]);
+            doTest("isOneTown('no no') false", isOneTown("no no"), false);
+            doTest("isOneTown('yes') is yes", isOneTown("yes"), true);
+            doTest("single word", parseTowns("accord"), ["Accord"]);
+            doTest("splitsIntoTwo", parseTowns("chicago/acron").length, 2);
+            doTest('parseTowns("Capital Wasteland (Various)") => ["Capital Wasteland", "Various"]', parseTowns("Capital Wasteland (Various)"), ["Capital Wasteland", "Various"]);
+            doTest('parseTowns("Champaign (but relocating to DC in late Sept.)"), ["Champaign", "DC"]', parseTowns("Champaign (but relocating to DC in late Sept.)"), ["Champaign", "DC", "Sept"]);
+            doTest('parseTowns("Los Angeles/Montréal") => ["Los Angeles", "Montréal"]', parseTowns("Los Angeles/Montréal"), ["Los Angeles", "Montréal"]);
+            doTest('parseTowns("SF/NYC/LA") => ["SF", "NYC", "LA"]', parseTowns("SF/NYC/LA"), ["SF", "NYC", "LA"]);
+            doTest('parseTowns("Silicon Valley, Pai (Thailand)"), ["Silicon Valley", "Pai","Thailand]"', parseTowns("Silicon Valley, Pai (Thailand)"), ["Silicon Valley", "Pai", "Thailand"]);
+            doTest('parseTowns("Stockholm, Malmö, Göteborg, Oslo, Copenhagen, Helsinki, Montréal, Wyszków") =>  ["Stockholm", "Malmö", "Göteborg", "Oslo", "Copenhagen", "Helsinki", "Montréal", "Wyszków"]', parseTowns("Stockholm, Malmö, Göteborg, Oslo, Copenhagen, Helsinki, Montréal, Wyszków"), ["Stockholm", "Malmö", "Göteborg", "Oslo", "Copenhagen", "Helsinki", "Montréal", "Wyszków"]);
+            doTest('parseTowns("Truckee, CA Portland, OR, Durango, CO, Los Angeles, CA, Reno, NV, Oakland, CA, Seattle, WA") should return ["Truckee, CA","Portland, OR","Durango, CO","Los Angeles, CA","Reno, NV","Oakland, CA","Seattle, WA"]', parseTowns("Truckee, CA Portland, OR, Durango, CO, Los Angeles, CA, Reno, NV, Oakland, CA, Seattle, WA"), ["Truckee, CA", "Portland, OR", "Durango, CO", "Los Angeles, CA", "Reno, NV", "Oakland, CA", "Seattle, WA"]);
+            doTest('parseTowns("We are a collection of wayward mutts gathered from all over the country: Seattle, Salt Lake, Connecticut, Nantucket, New Jersey") should return ["Seattle", "Salt Lake", "Connecticut", "Nantucket", "New Jersey"]', parseTowns("We are a collection of wayward mutts gathered from all over the country: Seattle, Salt Lake, Connecticut, Nantucket, New Jersey"), ["Seattle", "Salt Lake", "Connecticut", "Nantucket", "New Jersey"]);
+            doTest('parseTowns("We have two hometowns: Los Angeles & Seattle") should return ["Los Angeles", "Seattle"]', parseTowns("We have two hometowns: Los Angeles & Seattle"), ["Los Angeles", "Seattle"]);
+            doTest('parseTowns("Woodstock NY to Arcata CA") should return ["Arcata CA", "Woodstock NY"]', parseTowns("Woodstock NY to Arcata CA"), ["Woodstock NY", "Arcata CA"]);
+            doTest('parseTowns("Seattle and LA / Pittsburgh") = ["Seattle", "LA", "Pittsburgh"]', parseTowns("Seattle and LA / Pittsburgh"), ["Seattle", "LA", "Pittsburgh"]);
+            doTest('parseTowns("Seattle and LA and Pittsburgh") is ["LA", "Seattle", "Pittsburgh"]', parseTowns("Seattle and LA and Pittsburgh"), ["Seattle", "LA", "Pittsburgh"]);
+            doTest('parseTowns("San Francisco, Los Angeles, Pittsburgh, Wellington, Montreal, Malme, Amsterdam, etc. We\'re spread all over."), ["San Francisco","Los Angeles","Pittsburgh","Wellington","Montreal","Malme","Amsterdam"]', parseTowns("San Francisco, Los Angeles, Pittsburgh, Wellington, Montreal, Malme, Amsterdam, etc. We're spread all over."), ["San Francisco", "Los Angeles", "Pittsburgh", "Wellington", "Montreal", "Malme", "Amsterdam"]);
+            doTest('parseTowns("We have several other group members from around the world to include, Australia, New Zealand, England, Japan other cities within the United States."), ["Australia","New Zealand","England","Japan", "United States"]', parseTowns("We have several other group members from around the world to include, Australia, New Zealand, England, Japan other cities within the United States."), ["Australia", "New Zealand", "England", "Japan", "United States"]);
+            doTest('parseTowns("West Coast U.S.A") => ["West Coast", "U.S.A"]', parseTowns("West Coast U.S.A"), ["West Coast", "U.S.A"]);
+            console.log("All tests complete.");
+        };
+        const dummyData = ["Our group has members from various towns...predominantly Reno NV, Provo, UT, Northern CA, Salem OR, Seattle WA, Fredericksburg TX", "Alameda / Puerto Rico", "All over the USA and Beyond", "All over the place", "American Canyon", "Anchorage/Seattle/Vancouver", "Ann Arbor/Detroit", "Apache Junction", "Area, Las Vegas, Los Angeles, Orange County", "Aspen and San Francisco", "Atlanta, GA", "Auburn, CA; Spokane, WA; Ojai, CA", "Auburn/Grass Valley", "Austin (primary), Houston (secondary), Dallas, other Texas locations.", "Austin, TX", "Baltimore, MD and Washington, DC", "Barcelona Spain", "Bay Area", "Bay Area / Seattle", "Bay Area,Portland, Denver & Jacksonville", "Berkeley, CA", "Berlin - LA - SF", "Big Island of Hawaii", "New Cloud City", "New Cloud City, NV", "Black Rock, CT", "Boston MA", "Boston, LA, San Francisco", "Boulder Colorado", "Boulder Creek", "Boulder and Denver", "Boulder, SFO, NYC", "Brooklyn / London", "Brooklyn, NY", "Brooklyn, San Francisco, Boulder, Sydney, Paris, Tel Aviv, Hamburg, Berlin, Moscow", "Burlington VT, Incline Village, NV, London, UK, Dubai UAE, Springfield, MA, NYC, South Lake Tahoe, CA Park City, UT", "California, Hawaii, Taiwan, New York", "Cameron Park", "Group Hometown", "Group lead: Grass Valley, CA. Others are from all over the U.S.", "Capital Wasteland (Various)", "Carson City", "Cascadian Foothills, and Milano", "Champaign (but relocating to DC in late Sept.)", "Charlotte, Dallas, San Francisco, NYC and more", "Chicago/LA/NYC", "Chicago/Reno", "Ciudad de Buenos Aires", "Coos Bay", "Costa Mesa", "Costa Mesa, CA", "Cupertino, in the SF South Bay", "Currently that's BRC! Default World: Reno, Nevada City, Tahoe, Truckee and Green Bay", "Daly City", "Davis, CA", "Denver and NYC", "Denver, CO", "Detroit... I bet you knew that", "Diaspora!", "Donner Summit", "East Bay - SF Bay Area", "Eugene, Oregon, South Lake Tahoe.", "Everywhere but New Cloud City", "Everywhere!!", "Fairfax Station", "Floriston, CA and our sister city, Toronto, Canada", "Fort Lauderdale", "Fountain Valley, Orange County", "Grass Valley", "Greater Portland/Vancouver area", "Hesperia,", "Hood River", "Humboldt County, northern; Arcata, Bayside, Eureka", "Ibiza. This is were the founding members of the group met, most people are from different countries but Ibiza is the root", "Issaquah, Washington. Apart of the Greater Seattle Area.", "Joshua Tree", "Koh Phangan, Thailand", "L.A. and Tucson", "LA & Orange County", "LA / SF / NYC / London", "LA/SF", "LA/San Fran/Florida/South Africa", "LAS VEGAS with global input", "LOS ANGELES", "Laguna Beach", "Laguna Niguel", "Lake Tahlent", "Lake Tahoe", "Las Vegas", "Las Vegas/Menlo Park/New York", "Leucadia (San Diego)", "London (UK)", "London via SF", "London, UK and Melbourne, Australia", "Long Beach", "Los Angeles", "Los Angeles + San Francisco", "Los Angeles Mexico City", "Los Angeles and Brooklyn", "Los Angeles and Oakland", "Los Angeles, Portland, Reno", "Los Angeles, Portland, Seattle", "Los Angeles, San Francisco and all corners of the globe", "Los Angeles, San Francisco, Austin, and Houston", "Los Angeles, San Francisco, New York", "Los Angeles/Montréal", "Madrid, Spain", "Manila / Los Angeles", "Menlo Park", "Mexico City", "Mill Valley", "Milwaukee Wisconsin but people in our group are from all over the United States and even a few from Canada.", "Minneapolis/St Paul", "Monroe Township", "Montpellier France", "Moss Beach", "Mostly Seattle", "Mountain View", "Mt Shasta", "NYC & SF", "NYC, Los Angeles, Colorado, Vancouver, Sydney, Melbourne, Bunbury, San Juan, Auckland, Turkey, Saudi Arabia, Toronto", "NYC- SEATTLE - LA - AUSTRALIA", "NYC/PHL/PDX", "Nevada City", "Nevada City California", "New England", "New Haven", "New Orleans", "New Taipei City", "New York", "New York / SF", "New York / Zurich", "New York City", "New York City & Montreal", "New York City / Miami", "New York and Los Angeles", "New York city area including Brooklyn and nearby New Jersey", "New York, Copenhagen (Denmark), Washington D.C, Beijing", "New York, Dubai, San Francisco, Hong Kong", "New York, Houston", "New York, Reno, SF, LA, The Dakotas, Portland, Seattle, Somewhere in Wyoming, Philly, Boston, Toronto, London", "New York, Reno, Winemucca, SF, LA, The Dakotas, Portland, Seattle, Somewhere in Wyoming, Somewhere in CT, Somewhere in VA, Philly, Boston, Atlanta, Toronto, London", "New York/ Seattle", "Newport Beach", "Nikola-Lenivets, GPS 54.75782,35.60123", "No central base", "North Bay", "North Bend, WA, near Seattle", "North Hollywood", "North Lake Tahoe", "Northern Beaches, sydney", "Northern CA and Oklahoma", "Northern California", "Northern California, Nevada, and Beyond...", "Oakland & Seattle", "Oakland, CA", "Oakland, CA and New York, NY", "Oakland, California", "Oakland, LA", "Ojai and Ventura", "Olympia,", "Olympia, WA/Reno, NV", "Orange County", "Orange County, CA", "Our group members hail primarily from: San Francisco, Seattle, Louisville, Tolendo, Toronto, Vegas and Southern California", "Outer Scotia", "Pacific Coast", "Palm Springs", "Palm Springs, CA & San Franciso, CA", "Palo Alto", "Palo Alto / Napa", "Park City", "Park City Ut and Los Angeles CA", "Petaluma, CA..Bellingham, WA..Calgary, Alberta..Tucson, AZ..Portland & Hillsboro, OR..Bolingbrook, IL..Strongsville, OH..Vancouver, BC..New Cloud City, NV", "Philadephia and Chicago", "Phoenix, Los Angeles", "Placerville CA", "Planet Earth - We are from everywhere!", "Portland & Bend", "Portland / Eugene / Seattle", "Portland / San Jose", "Portland and Eugene", "Portland, Oregon", "Portland/San Francisco", "RIO DE JANEIRO", "Redondo Beach", "Redwood City", "Redwood City California and Oak Creek Colorado (aka Calico)", "Reno and San Francisco", "Reno, Boulder, Paris", "Reno, NV, Bay Area, CA, and LA", "Reno, Nevada", "Reno, Nevada (mostly), with a couple from Salt Lake City, Utah, and California", "Reno/Sparks", "Reno/Tahoe", "Rosendale, NY, 12472", "SAN FRANCISCO", "SD-OC-LA-SF", "SF Bay Area", "SF Bay area/Sacremanto/ San Luis Obispo/ Humboldt County", "SF Bay, L.A., Seattle, Pollock Pines, CT, GB", "SF, LA, Boise, Seattle, NYC", "SF, LA, Mammoth, London & Seattle", "SF/NYC/LA", "Sacramento & San Francisco", "Sacramento, Buffalo, Yellowknife, LA, Chicago, Pittsburgh, Germany, Lake Tahoe, Salt Lake City", "Sacramento, CA", "Sacramento, London", "Saint Louis", "Salt Lake City", "San Diego", "San Diego, Bay Area, Oregon", "San Diego, San Francisco", "San Fra", "San Fran and LA", "San Francisco", "San Francisco & New York City", "San Francisco / Chicago", "San Francisco / Los Angeles", "San Francisco / Los Angeles and Cities Across US and Abroad", "San Francisco / Oakland", "San Francisco / Paris", "San Francisco / Sacramento", "San Francisco / The World", "San Francisco Bay Area", "San Francisco Bay Area, Los Angeles, Vancouver, British Columbia, New York", "San Francisco Bay area, Sacramento", "San Francisco and Los Angeles", "San Francisco and New York City", "San Francisco and the surrounding Bay Area", "San Francisco bay area", "San Francisco to Santa Cruz, Built in Redwood City, CA", "San Francisco, Boulder, & Boston", "San Francisco, CA", "San Francisco, Chicago, LA, NYC", "San Francisco, East Bay, Pebble Beach and New York City", "San Francisco, LA, Portland OR", "San Francisco, Los Angeles", "San Francisco, Los Angeles, Albuquerque, Seattle, New York City, Houston, Philadelphia, Washington DC", "San Francisco, Los Angeles, Boston, NYC", "San Francisco, Los Angeles, New York", "San Francisco, Los Angeles, Pittsburgh, Wellington, Montreal, Malme, Amsterdam, etc. We're spread all over.", "San Francisco, Los Angeles, Vancouver", "San Francisco, Santa Cruz, San Jose", "San Francisco, Seattle, Vancouver, Los Angeles, Berlin", "San Francisco/Los Angeles/Denver/Vancouver/London/NYC", "San Francisco/Oakland", "San Francisco/Vancouver/Boston/Sydney", "San Francsico", "San Frandencouver", "San Franscisco", "San Fransisco", "San Fransisco, Boise and NYC", "San Jose", "San Jose CA & Portland OR", "San Jose, CA", "San Jose/Oakland/Berkeley", "San Leandro", "San Luis Obipso", "San Luis Obispo", "San Mateo/Budapest", "San Pedro, California 90731", "San Ramon", "Sandpoint, Idaho", "Santa Barbara", "Santa Clara", "Santa Cruz", "Santa Cruz (CA USA) and Aachen (Germany)", "Santa Cruz, Oakland, LA", "Santa Cruz/Oakland", "Santa Fe", "Santa Fe New Mexico", "Santa Monica", "Santa Rosa", "Santa Rosa Beach", "Seattle / Portland / San Francisco", "Seattle and Minneapolis", "Seattle and San Francisco", "Seattle and the surrounding Planet", "Seattle, Minneapolis, Los Angeles, Bay Area", "Seattle, Painesville, and Parker", "Seattle, Portland, Chicago and NYC", "Seattle, Portland, San Francisco", "Seattle, San Francisco, and LA", "Seattle, Ventura, Ithaca", "Seattle, Wichita, Boulder, OKC, Chico", "Seattle/Tacoma", "Sebastopol, CA", "Shanghai/Bahrain/Norfolk VA", "Sherman Oaks", "Silicon Valley", "Silicon Valley, Pai (Thailand)", "Silver City", "Sonoma County and Los Angeles", "Sonoma County, CA", "South Bay Area", "South Lake Tahoe", "South Reno", "Southern California", "St. Louis", "St. Thomas", "Steamboat Springs, Colorado.", "Stockholm, Malmö, Göteborg, Oslo, Copenhagen, Helsinki", "Sun City", "Sydney, Australia", "Tahoe/Truckee/Verdi", "Technically based in College Park, Maryland; but we have members from multiple states.", "The Gypsy Nebula", "The internet", "Truckee, CA Portland, OR, Durango, CO, Los Angeles, CA, Reno, NV, Oakland, CA, Seattle, WA", "Truckee/Reno", "Tu Madre", "Ukiah, CA", "Van Nuys", "Vancouver & Toronto", "Vancouver/Louisville", "Vancouver/San Francisco", "Various Villages", "Vashon Island", "Venice Beach", "Venice beach", "Victoria/Vancouver", "Walnut Creek", "Washington DC", "Washington, DC", "We are a collection of wayward mutts gathered from all over the country: Seattle, Salt Lake, Connecticut, Nantucket, New Jersey", "We are based out of Sparks, Nevada. Most of our group members live in this region. We have several other group members from around the world to include, Australia, New Zealand, England, Japan other cities within the United States.", "We are global!", "We have no hometown. Group members come from several states and Canada", "We have three main hometowns for Le Kafe: San Francisco/Denver/Paris.", "We have two hometowns: Los Angeles & Seattle", "We're from all over the world.", "West Coast U.S.A", "West Hollywood", "West Hollywood, CA", "Whistler, BC", "Woodacre-Seattle", "Woodstock NY to Arcata CA", "facebook.com/vituttaa", "los angeles", "n/a", "san francisco", "santa rosa", "sonoma county"];
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "hometown-parser",
+  "version": "1.0.0",
+  "description": "Receives a string that may contain one or more place names and returns an array of its best guess at what the place names are. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo see hometown.html in this project folder",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rendall/hometown-parser.git"
+  },
+  "author": "Rendall Koski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rendall/hometown-parser/issues"
+  },
+  "homepage": "https://github.com/rendall/hometown-parser#readme",
+  "devDependencies": {
+    "@types/ramda": "^0.24.7"
+  },
+  "dependencies": {
+    "typescript": "^2.4.2"
+  }
+}
