@@ -1,5 +1,10 @@
 Hometown Parser
 =============
+Input a string, output an array of possible place-names.
+
+Motivation
+-----------
+
 You are hosting a gathering of creative people from all over the world, and in order to be well prepared, you have an online form by which affiliated individuals let you know they are affiliated.  Your form perhaps has a 'group name' field and a 'date of arrival' field and a 'number of members' field.  
 
 You also have a 'hometown' field.
@@ -35,11 +40,11 @@ If you're making a website, you can try putting this into the `<head>` tag:
 
 `<script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.24.1/ramda.min.js" integrity="sha384-OricteDxGJ77wQTPXdPmz8SoLVmEkW51fQRzhTGmUXG6u608OIFWHzCVwDFki+w6" crossorigin="anonymous"></script>`
 
-    followed by
+followed by
 
 `<script src="https://raw.githubusercontent.com/rendall/hometown-parser/master/js/hometowns.js"></script>`
 
-    but, I dunno. You might want to have those files be local.
+but, I dunno. You might want to have those files be local, instead.
 
 
 Alternatively, you can clone the repository which contains all that is necessary. Therein is a [hometown.html](https://raw.githubusercontent.com/rendall/hometown-parser/master/hometown.html) webpage with examples and unit tests.
@@ -51,7 +56,7 @@ Run your string through the `parseTowns` function, as in
 
 `parseTowns("Our group members hail primarily from: San Francisco, Seattle, Louisville, Tolendo, Toronto, Vegas and Southern California")`
 
-    and the Hometown Parser will return an array of strings representing its best guess as to what those place names are:
+and the Hometown Parser will return an array of strings representing its best guess as to what those place names are:
 
 `["San Francisco","Seattle","Louisville","Tolendo","Toronto","Vegas","Southern California"]`
 
@@ -59,7 +64,7 @@ You can also then run those strings through `toCanonicalName` as in
 
 `parseTowns("NYC/PHL/PDX/OKC/LA/Vegas").map((s) => toCanonicalName(s))` 
 
-    which will output
+which will output
 
 `["NYC","Philadelphia","Portland","Las Vegas","Oklahoma City","Los Angeles","Las Vegas"]`
 
@@ -68,14 +73,18 @@ Check [hometown.html](https://raw.githubusercontent.com/rendall/hometown-parser/
 Contributing
 ------------
 
-Definitely! The algorithm is by no means perfect. It's written using Typescript and Ramda.
+Definitely! Create an [issue](issues) or: 
 
-Install [NPM](https://www.npmjs.com/get-npm) 
-Clone this repository. 
-Navigate to the repo directory using your favorite terminal.
-Type `npm install`.
-./ts/hometown.ts is the working copy. Edit that.
-Type `npm build`.
-Open `hometown.html` in your favorite browser to test.
+Clone the repo and get to work!  It's written using Typescript and Ramda, so if you know / want to learn those, this is a good project for you.
+
+The algorithm is by no means perfect, so if you see a way to improve it, show me!
+
+* Install [NPM](https://www.npmjs.com/get-npm) 
+* Clone this repository. 
+* Navigate to the repo directory using your favorite terminal.
+* Type `npm install`.
+* `./ts/hometown.ts` is the working copy. Edit that.
+* Type `npm build`.
+* Open `hometown.html` in your favorite browser to test.
 
 
