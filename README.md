@@ -6,7 +6,7 @@ Input a string, output an array of possible place-names. Demo: [https://rendall.
 Motivation
 -----------
 
-The 'hometown' field for Burning Man theme camps is often creatively interpreted by users filling out the form, so location data can be difficult to glean. This is an attempt to normalize the information. It may be useful in other circumstances as well.
+The 'hometown' field for Burning Man theme camps is often creatively interpreted by users filling out the form, so location data can be difficult to glean. This is an attempt to normalize the information. It may be useful in other similar circumstances as well.
 
 Approach
 --------
