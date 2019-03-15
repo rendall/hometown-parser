@@ -1,5 +1,6 @@
 Hometown Parser
 =============
+
 Input a string, output an array of possible place-names.
 
 Motivation
@@ -14,7 +15,7 @@ For some of these groups, it's pretty straightforward:
 "Helsinki"
 "Peoria, IL"
 
-But for other groups, it's complicated: 
+But for other groups, it's complicated:
 "Sydney, Salt Spring Island, BC and Christiania, Denmark"
 "SEATTLE/LOS GATOS/NYC"
 "Phoenix, Wyszków"
@@ -30,11 +31,12 @@ Philadelphia, Philly, PHL
 
 You would love to, somehow, get a good grasp of where all these groups are coming from, but "SF" is so different from "RIO DE JANEIRO-BRAZIL AND SAN FRAN"
 
-This is where the Hometown Parser can help you out. 
+This is where the Hometown Parser can help you out.
 
 Installation
 -----------
-The parser uses [Ramdajs](https://cdnjs.cloudflare.com/ajax/libs/ramda/0.24.1/ramda.min.js).  You will need to reference that before loading hometown.js. Then reference [hometowns.js](https://raw.githubusercontent.com/rendall/hometown-parser/master/js/hometowns.js). 
+
+The parser uses [Ramdajs](https://cdnjs.cloudflare.com/ajax/libs/ramda/0.24.1/ramda.min.js).  You will need to reference that before loading hometown.js. Then reference [hometowns.js](https://raw.githubusercontent.com/rendall/hometown-parser/master/js/hometowns.js).
 
 If you're making a website, you can try putting this into the `<head>` tag:
 
@@ -46,13 +48,12 @@ followed by
 
 but, I dunno. You might want to have those files be local, instead.
 
-
 Alternatively, you can clone the repository which contains all that is necessary. Therein is a [hometown.html](https://raw.githubusercontent.com/rendall/hometown-parser/master/hometown.html) webpage with examples and unit tests.
 
 Usage
 -----
 
-Run your string through the `parseTowns` function, as in 
+Run your string through the `parseTowns` function, as in
 
 `parseTowns("Our group members hail primarily from: San Francisco, Seattle, Louisville, Tolendo, Toronto, Vegas and Southern California")`
 
@@ -62,7 +63,7 @@ and the Hometown Parser will return an array of strings representing its best gu
 
 You can also then run those strings through `toCanonicalName` as in
 
-`parseTowns("NYC/PHL/PDX/OKC/LA/Vegas").map((s) => toCanonicalName(s))` 
+`parseTowns("NYC/PHL/PDX/OKC/LA/Vegas").map((s) => toCanonicalName(s))`
 
 which will output
 
@@ -73,18 +74,16 @@ Check [hometown.html](https://raw.githubusercontent.com/rendall/hometown-parser/
 Contributing
 ------------
 
-Definitely! Create an [issue](issues) or: 
+Definitely! Create an [issue](issues) or:
 
 Clone the repo and get to work!  It's written using Typescript and Ramda, so if you know / want to learn those, this is a good project for you.
 
 The algorithm is by no means perfect, so if you see a way to improve it, show me!
 
-* Install [NPM](https://www.npmjs.com/get-npm) 
-* Clone this repository. 
+* Install [NPM](https://www.npmjs.com/get-npm)
+* Clone this repository.
 * Navigate to the repo directory using your favorite terminal.
 * Type `npm install`.
 * `./ts/hometown.ts` is the working copy. Edit that.
 * Type `npm build`.
 * Open `hometown.html` in your favorite browser to test.
-
-

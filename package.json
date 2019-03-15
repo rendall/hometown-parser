@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo see hometown.html in this project folder",
-    "build": "tsc"
+    "build": "tsc",
+    "copy:html": "cp hometown.html ../../websites/rendall.tv-v2/wwwroot/show/bm/hometown-parser/ ",
+    "copy:js": "cp js/ -r ../../websites/rendall.tv-v2/wwwroot/show/bm/hometown-parser/",
+    "copy": "npm run copy:html && npm run copy:js && echo done"
   },
   "repository": {
     "type": "git",
