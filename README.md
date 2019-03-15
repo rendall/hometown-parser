@@ -13,6 +13,11 @@ Approach
 
 This is a hand-crafted algorithm based on pattern-matching and trial-and-error. Still, even the most creative essays and interpretations of 'hometown' in this field follows general patterns, and the algorithm is *good enough*.
 
+TODO
+----
+
+- incorporate the [World Cities](https://github.com/datasets/world-cities) dataset
+
 Detail
 ------
 
