@@ -1,10 +1,20 @@
 Hometown Parser
 =============
 
-Input a string, output an array of possible place-names.
+Input a string, output an array of possible place-names. Demo: [https://rendall.github.io/hometown-parser/](https://rendall.github.io/hometown-parser/)
 
 Motivation
 -----------
+
+The 'hometown' field for Burning Man theme camps is often creatively interpreted by users filling out the form, so location data can be difficult to glean. This is an attempt to normalize the information. It may be useful in other circumstances as well.
+
+Approach
+--------
+
+This is a hand-crafted algorithm based on pattern-matching and trial-and-error. Still, even the most creative essays and interpretations of 'hometown' in this field follows general patterns, and the algorithm is *good enough*.
+
+Detail
+------
 
 You are hosting a gathering of creative people from all over the world, and in order to be well prepared, you have an online form by which affiliated individuals let you know they are affiliated.  Your form perhaps has a 'group name' field and a 'date of arrival' field and a 'number of members' field.  
 
