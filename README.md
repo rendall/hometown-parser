@@ -1,3 +1,5 @@
+This project is superceded by <https://github.com/rendall/hometown-parser-2>
+
 Hometown Parser
 =============
 
